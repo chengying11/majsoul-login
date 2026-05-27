@@ -14,7 +14,7 @@ for i in range(acccounts):
     passwd = sys.argv[1+i+acccounts]
     print('----------------------------')
 
-    # 1. 打开浏览器（反风控配置，必须保留）
+    # 1. 浏览器配置（反风控，GitHub必备）
     options = webdriver.ChromeOptions()
     options.add_argument("--headless=new")
     options.add_argument("--disable-blink-features=AutomationControlled")
@@ -29,7 +29,7 @@ for i in range(acccounts):
     print(f'Account {i+1} loading game...')
     sleep(10)
 
-    # 2. 等待游戏画布加载（修复找不到元素）
+    # 2. 等待游戏画布加载
     try:
         screen = WebDriverWait(driver, 20).until(
             EC.presence_of_element_located((By.TAG_NAME, "canvas"))
@@ -39,22 +39,22 @@ for i in range(acccounts):
         driver.quit()
         raise
 
-    # 3. 点击账号输入框 + 直接输入（核心修复：删除了错误的find_element）
+    # 3. 输入账号（修复：正确的Canvas输入方式）
     ActionChains(driver)\
         .move_to_element_with_offset(screen, 250, -100)\
         .click()\
+        .send_keys(email)\
         .perform()
     sleep(1)
-    driver.send_keys(email)  # 直接模拟键盘输入，不需要找input元素
     print('Input email successfully')
 
-    # 4. 点击密码输入框 + 直接输入（核心修复：删除了错误的find_element）
+    # 4. 输入密码（修复：正确的Canvas输入方式）
     ActionChains(driver)\
         .move_to_element_with_offset(screen, 250, -50)\
         .click()\
+        .send_keys(passwd)\
         .perform()
     sleep(1)
-    driver.send_keys(passwd)
     print('Input password successfully')
 
     # 5. 点击登录
