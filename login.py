@@ -4,7 +4,6 @@ from time import sleep
 from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
-# 新增：等待页面加载的依赖
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -15,10 +14,9 @@ for i in range(acccounts):
     passwd = sys.argv[1+i+acccounts]
     print('----------------------------')
 
-    #1.open browser 【核心修复：添加反雀魂风控参数，GitHub服务器必备】
+    # 1. 打开浏览器（反风控配置，必须保留）
     options = webdriver.ChromeOptions()
     options.add_argument("--headless=new")
-    # 👇 以下是新增的关键配置，绕过自动化检测，让游戏正常加载
     options.add_argument("--disable-blink-features=AutomationControlled")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
@@ -29,42 +27,42 @@ for i in range(acccounts):
     driver.set_window_size(1000, 720)
     driver.get("https://game.maj-soul.net/1/")
     print(f'Account {i+1} loading game...')
-    sleep(10) # 缩短预加载时间，配合显式等待更高效
+    sleep(10)
 
-    #2.input email 【核心修复：等待元素加载，替换为更稳定的canvas定位】
+    # 2. 等待游戏画布加载（修复找不到元素）
     try:
-        # 等待canvas元素加载完成（最长等20秒），解决找不到layaCanvas的问题
         screen = WebDriverWait(driver, 20).until(
             EC.presence_of_element_located((By.TAG_NAME, "canvas"))
         )
-    except Exception as e:
-        # 失败截图，方便排查问题
-        driver.save_screenshot(f"account_{i+1}_error.png")
-        print(f"❌ 账号{i+1} 游戏界面加载失败")
+    except:
+        driver.save_screenshot(f"error_{i+1}.png")
         driver.quit()
-        raise e
+        raise
 
+    # 3. 点击账号输入框 + 直接输入（核心修复：删除了错误的find_element）
     ActionChains(driver)\
         .move_to_element_with_offset(screen, 250, -100)\
         .click()\
         .perform()
-    driver.find_element(By.NAME, 'input').send_keys(email)
+    sleep(1)
+    driver.send_keys(email)  # 直接模拟键盘输入，不需要找input元素
     print('Input email successfully')
 
-    #3.input password
+    # 4. 点击密码输入框 + 直接输入（核心修复：删除了错误的find_element）
     ActionChains(driver)\
         .move_to_element_with_offset(screen, 250, -50)\
         .click()\
         .perform()
-    driver.find_element(By.NAME, 'input_password').send_keys(passwd)
+    sleep(1)
+    driver.send_keys(passwd)
     print('Input password successfully')
 
-    #4.login
+    # 5. 点击登录
     ActionChains(driver)\
         .move_to_element_with_offset(screen, 250, 50)\
         .click()\
         .perform()
     print('Entering game...')
-    sleep(20) #loading...
+    sleep(20)
     print('Login success')
     driver.quit()
