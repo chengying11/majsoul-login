@@ -44,74 +44,42 @@ for i in range(acccounts):
     driver.save_screenshot(f"login_screen_{i+1}.png")
     print('Login screen captured')
 
-    print('=== Finding HTML input elements ===')
+    print('\n=== Debug: Page Structure Analysis ===')
     
-    try:
-        email_input = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "input[placeholder*='電郵'], input[placeholder*='email'], input[placeholder*='账号'], input[type='text']"))
-        )
-        print('Found email input element')
-        
-        email_input.click()
-        sleep(1)
-        email_input.clear()
-        email_input.send_keys(email)
-        print(f'Entered email: {email[:5]}***')
-        
-        sleep(2)
-        driver.save_screenshot(f"after_email_{i+1}.png")
-        print('After email screenshot saved')
-        
-    except Exception as e:
-        print(f'Failed to find email input: {e}')
-        driver.save_screenshot(f"email_error_{i+1}.png")
-        driver.quit()
-        raise
+    print('\n1. Checking for iframes...')
+    iframes = driver.find_elements(By.TAG_NAME, "iframe")
+    print(f'Found {len(iframes)} iframes')
+    for idx, iframe in enumerate(iframes):
+        print(f'  Iframe {idx}: name="{iframe.get_attribute("name")}", src="{iframe.get_attribute("src")[:50]}..."')
 
-    try:
-        password_input = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "input[placeholder*='密碼'], input[placeholder*='password'], input[type='password']"))
-        )
-        print('Found password input element')
-        
-        password_input.click()
-        sleep(1)
-        password_input.clear()
-        password_input.send_keys(passwd)
-        print(f'Entered password: {"*" * len(passwd)}')
-        
-        sleep(2)
-        driver.save_screenshot(f"after_password_{i+1}.png")
-        print('After password screenshot saved')
-        
-    except Exception as e:
-        print(f'Failed to find password input: {e}')
-        driver.save_screenshot(f"password_error_{i+1}.png")
-        driver.quit()
-        raise
+    print('\n2. Checking all input elements on main page...')
+    inputs = driver.find_elements(By.TAG_NAME, "input")
+    print(f'Found {len(inputs)} input elements')
+    for idx, inp in enumerate(inputs):
+        placeholder = inp.get_attribute("placeholder")
+        type_attr = inp.get_attribute("type")
+        print(f'  Input {idx}: type="{type_attr}", placeholder="{placeholder}"')
 
-    try:
-        login_button = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'進入') or contains(text(),'登录') or contains(text(),'Login')]"))
-        )
-        print('Found login button')
-        
-        login_button.click()
-        print('Clicked login button')
-        
-        sleep(15)
-        driver.save_screenshot(f"after_login_{i+1}.png")
-        print('After login screenshot saved')
-        
-    except Exception as e:
-        print(f'Failed to find login button: {e}')
-        driver.save_screenshot(f"login_button_error_{i+1}.png")
-        driver.quit()
-        raise
+    print('\n3. Checking document body HTML (first 1000 chars)...')
+    body_html = driver.execute_script("return document.body.innerHTML")[:1000]
+    print(body_html)
 
-    print('Waiting for login process...')
-    sleep(45)
-    driver.save_screenshot(f"after_login_wait_{i+1}.png")
-    print('After login wait screenshot saved')
+    print('\n=== Attempting to switch to iframe and find inputs ===')
+    for idx, iframe in enumerate(iframes):
+        try:
+            driver.switch_to.frame(iframe)
+            print(f'Switched to iframe {idx}')
+            
+            iframe_inputs = driver.find_elements(By.TAG_NAME, "input")
+            print(f'Found {len(iframe_inputs)} input elements in iframe {idx}')
+            for j, inp in enumerate(iframe_inputs):
+                placeholder = inp.get_attribute("placeholder")
+                type_attr = inp.get_attribute("type")
+                print(f'  Input {j}: type="{type_attr}", placeholder="{placeholder}"')
+            
+            driver.switch_to.default_content()
+        except Exception as e:
+            print(f'Failed to switch to iframe {idx}: {e}')
+            driver.switch_to.default_content()
 
     driver.quit()
