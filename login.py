@@ -22,48 +22,37 @@ for i in range(acccounts):
     options.add_argument("--window-size=1280,800")
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option('useAutomationExtension', False)
-    
+
     driver = webdriver.Chrome(options=options)
     driver.get("https://game.maj-soul.net/1/")
     print(f'Account {i+1} loading game...')
-    
+
     try:
         screen = WebDriverWait(driver, 60).until(
             EC.presence_of_element_located((By.TAG_NAME, "canvas"))
         )
         print(f'Canvas found, size: {screen.size}')
-        canvas_width = screen.size['width']
-        canvas_height = screen.size['height']
     except:
         driver.save_screenshot(f"error_canvas_{i+1}.png")
         driver.quit()
         raise
-    
+
     print('Waiting for game to fully load...')
     sleep(60)
     print('Game load wait completed')
-    
+
     driver.save_screenshot(f"login_screen_{i+1}.png")
     print('Login screen captured')
 
-    def click_canvas(x, y):
-        driver.execute_script(f"""
-            var canvas = document.querySelector('canvas');
-            if (canvas) {{
-                var rect = canvas.getBoundingClientRect();
-                var event = new MouseEvent('click', {{
-                    clientX: rect.left + {x},
-                    clientY: rect.top + {y},
-                    bubbles: true
-                }});
-                canvas.dispatchEvent(event);
-            }}
-        """)
-
     print('Trying to input email...')
-    click_canvas(canvas_width // 2, canvas_height // 3)
+    ActionChains(driver)\
+        .move_to_element_with_offset(screen, 1000, 300)\
+        .click()\
+        .perform()
     sleep(1)
-    ActionChains(driver).send_keys(email).perform()
+    ActionChains(driver)\
+        .send_keys(email)\
+        .perform()
     sleep(2)
     print('Email input attempted')
 
@@ -71,9 +60,14 @@ for i in range(acccounts):
     print('After email input captured')
 
     print('Trying to input password...')
-    click_canvas(canvas_width // 2, canvas_height // 2)
+    ActionChains(driver)\
+        .move_to_element_with_offset(screen, 1000, 380)\
+        .click()\
+        .perform()
     sleep(1)
-    ActionChains(driver).send_keys(passwd).perform()
+    ActionChains(driver)\
+        .send_keys(passwd)\
+        .perform()
     sleep(2)
     print('Password input attempted')
 
@@ -81,22 +75,29 @@ for i in range(acccounts):
     print('After password input captured')
 
     print('Clicking login button...')
-    click_canvas(canvas_width // 2, canvas_height * 2 // 3)
+    ActionChains(driver)\
+        .move_to_element_with_offset(screen, 1000, 500)\
+        .click()\
+        .perform()
+    print('Login button clicked')
     sleep(15)
-    
+
     driver.save_screenshot(f"after_login_click_{i+1}.png")
     print('After login click captured')
 
     print('Waiting for login process...')
     sleep(45)
-    
+
     driver.save_screenshot(f"after_login_wait_{i+1}.png")
     print('After login wait captured')
 
     print('Checking for server selection...')
     sleep(5)
-    
-    click_canvas(canvas_width // 2, canvas_height // 6)
+
+    ActionChains(driver)\
+        .move_to_element_with_offset(screen, 1000, 220)\
+        .click()\
+        .perform()
     sleep(5)
 
     driver.save_screenshot(f"after_server_select_{i+1}.png")
@@ -106,13 +107,21 @@ for i in range(acccounts):
     sleep(30)
 
     print('Attempting to claim monthly card...')
-    click_canvas(canvas_width // 2, canvas_height // 2)
+    ActionChains(driver)\
+        .move_to_element_with_offset(screen, 640, 560)\
+        .click()\
+        .perform()
     sleep(3)
-    click_canvas(canvas_width // 2, canvas_height // 2)
+
+    ActionChains(driver)\
+        .move_to_element_with_offset(screen, 640, 560)\
+        .click()\
+        .perform()
     sleep(3)
+
     print('Monthly card claim attempt completed')
-    
+
     driver.save_screenshot(f"result_{i+1}.png")
     print(f'Screenshot saved as result_{i+1}.png')
-    
+
     driver.quit()
