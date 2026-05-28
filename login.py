@@ -47,20 +47,20 @@ for i in range(acccounts):
     driver.save_screenshot(f"login_screen_{i+1}.png")
     print('Login screen captured')
 
-    # 4. 输入账号
+    # 4. 输入账号 - 调整坐标
     print('Trying to input email...')
     ActionChains(driver)\
-        .move_to_element_with_offset(screen, 280, -100)\
+        .move_to_element_with_offset(screen, 300, -130)\
         .click()\
         .send_keys(email)\
         .perform()
     sleep(2)
     print('Email input attempted')
 
-    # 5. 输入密码
+    # 5. 输入密码 - 调整坐标
     print('Trying to input password...')
     ActionChains(driver)\
-        .move_to_element_with_offset(screen, 280, -20)\
+        .move_to_element_with_offset(screen, 300, -50)\
         .click()\
         .send_keys(passwd)\
         .perform()
@@ -73,14 +73,28 @@ for i in range(acccounts):
     # 6. 点击登录
     print('Clicking login button...')
     ActionChains(driver)\
-        .move_to_element_with_offset(screen, 280, 60)\
+        .move_to_element_with_offset(screen, 300, 30)\
         .click()\
         .perform()
     print('Login button clicked')
-    sleep(40)
+    sleep(5)
+    
+    # 7. 关闭服务器选择弹窗（如果出现）
+    driver.save_screenshot(f"before_close_{i+1}.png")
+    print('Checking for server selection dialog...')
+    
+    # 点击关闭按钮位置（弹窗右上角）
+    ActionChains(driver)\
+        .move_to_element_with_offset(screen, 300, -200)\
+        .click()\
+        .perform()
+    sleep(2)
+    
+    # 等待进入游戏
+    sleep(35)
     print('Login success')
 
-    # 7. 领取月卡
+    # 8. 领取月卡
     print('Attempting to claim monthly card...')
     sleep(5)
     
