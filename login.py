@@ -14,7 +14,7 @@ for i in range(acccounts):
     passwd = sys.argv[1+i+acccounts]
     print('----------------------------')
 
-    # 1. 浏览器配置（反风控，GitHub必备）
+    # 1. 浏览器配置（反风控）
     options = webdriver.ChromeOptions()
     options.add_argument("--headless=new")
     options.add_argument("--disable-blink-features=AutomationControlled")
@@ -65,4 +65,29 @@ for i in range(acccounts):
     print('Entering game...')
     sleep(20)
     print('Login success')
+
+    # 6. 领取月卡 - 月卡弹窗会在登录后自动显示在中间，直接点击即可
+    print('Attempting to claim monthly card...')
+    sleep(3)  # 等待月卡弹窗出现
+    
+    # 第一次点击 - 打开月卡弹窗或点击领取
+    ActionChains(driver)\
+        .move_to_element_with_offset(screen, 0, 50)\
+        .click()\
+        .perform()
+    sleep(2)
+    
+    # 第二次点击 - 确认领取或关闭弹窗
+    ActionChains(driver)\
+        .move_to_element_with_offset(screen, 0, 50)\
+        .click()\
+        .perform()
+    sleep(2)
+    
+    print('Monthly card claim attempt completed')
+    
+    # 保存截图以便调试
+    driver.save_screenshot(f"result_{i+1}.png")
+    print(f'Screenshot saved as result_{i+1}.png')
+    
     driver.quit()
