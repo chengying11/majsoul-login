@@ -46,7 +46,7 @@ for i in range(acccounts):
 
     print('Trying to input email...')
     ActionChains(driver)\
-        .move_to_element_with_offset(screen, 350, 0)\
+        .move_to_element_with_offset(screen, 320, -40)\
         .click()\
         .perform()
     sleep(1)
@@ -60,7 +60,7 @@ for i in range(acccounts):
 
     print('Trying to input password...')
     ActionChains(driver)\
-        .move_to_element_with_offset(screen, 350, 70)\
+        .move_to_element_with_offset(screen, 320, 30)\
         .click()\
         .perform()
     sleep(1)
@@ -74,7 +74,7 @@ for i in range(acccounts):
 
     print('Clicking login button...')
     ActionChains(driver)\
-        .move_to_element_with_offset(screen, 350, 170)\
+        .move_to_element_with_offset(screen, 320, 130)\
         .click()\
         .perform()
     print('Login button clicked')
