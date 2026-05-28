@@ -2,7 +2,6 @@ import sys
 from time import sleep
 
 from selenium import webdriver
-from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -44,17 +43,52 @@ for i in range(acccounts):
     driver.save_screenshot(f"login_screen_{i+1}.png")
     print('Login screen captured')
 
+    def simulate_click(x, y):
+        driver.execute_script(f'''
+            var canvas = document.querySelector('canvas');
+            if (canvas) {{
+                var rect = canvas.getBoundingClientRect();
+                var clickEvent = new MouseEvent('click', {{
+                    clientX: rect.left + {x},
+                    clientY: rect.top + {y},
+                    bubbles: true,
+                    cancelable: true
+                }});
+                canvas.dispatchEvent(clickEvent);
+            }}
+        ''')
+
+    def simulate_keyboard(text):
+        driver.execute_script(f'''
+            var canvas = document.querySelector('canvas');
+            if (canvas) {{
+                text.split('').forEach(function(char) {{
+                    var keyEvent = new KeyboardEvent('keydown', {{
+                        key: char,
+                        bubbles: true,
+                        cancelable: true
+                    }});
+                    canvas.dispatchEvent(keyEvent);
+                    keyEvent = new KeyboardEvent('keypress', {{
+                        key: char,
+                        bubbles: true,
+                        cancelable: true
+                    }});
+                    canvas.dispatchEvent(keyEvent);
+                    keyEvent = new KeyboardEvent('keyup', {{
+                        key: char,
+                        bubbles: true,
+                        cancelable: true
+                    }});
+                    canvas.dispatchEvent(keyEvent);
+                }});
+            }}
+        ''', text)
+
     print('Trying to input email...')
-    actions = ActionChains(driver)
-    actions.move_to_element(screen)
-    actions.move_by_offset(900, 280)
-    actions.click()
-    actions.perform()
+    simulate_click(900, 280)
     sleep(1)
-    
-    actions = ActionChains(driver)
-    actions.send_keys(email)
-    actions.perform()
+    simulate_keyboard(email)
     sleep(2)
     print('Email input attempted')
 
@@ -62,16 +96,9 @@ for i in range(acccounts):
     print('After email input captured')
 
     print('Trying to input password...')
-    actions = ActionChains(driver)
-    actions.move_to_element(screen)
-    actions.move_by_offset(900, 360)
-    actions.click()
-    actions.perform()
+    simulate_click(900, 360)
     sleep(1)
-    
-    actions = ActionChains(driver)
-    actions.send_keys(passwd)
-    actions.perform()
+    simulate_keyboard(passwd)
     sleep(2)
     print('Password input attempted')
 
@@ -79,11 +106,7 @@ for i in range(acccounts):
     print('After password input captured')
 
     print('Clicking login button...')
-    actions = ActionChains(driver)
-    actions.move_to_element(screen)
-    actions.move_by_offset(900, 480)
-    actions.click()
-    actions.perform()
+    simulate_click(900, 480)
     print('Login button clicked')
     sleep(15)
 
@@ -99,11 +122,7 @@ for i in range(acccounts):
     print('Checking for server selection...')
     sleep(5)
 
-    actions = ActionChains(driver)
-    actions.move_to_element(screen)
-    actions.move_by_offset(900, 200)
-    actions.click()
-    actions.perform()
+    simulate_click(900, 200)
     sleep(5)
 
     driver.save_screenshot(f"after_server_select_{i+1}.png")
@@ -113,18 +132,9 @@ for i in range(acccounts):
     sleep(30)
 
     print('Attempting to claim monthly card...')
-    actions = ActionChains(driver)
-    actions.move_to_element(screen)
-    actions.move_by_offset(640, 560)
-    actions.click()
-    actions.perform()
+    simulate_click(640, 560)
     sleep(3)
-    
-    actions = ActionChains(driver)
-    actions.move_to_element(screen)
-    actions.move_by_offset(640, 560)
-    actions.click()
-    actions.perform()
+    simulate_click(640, 560)
     sleep(3)
     print('Monthly card claim attempt completed')
 
