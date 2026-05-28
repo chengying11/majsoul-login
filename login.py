@@ -63,12 +63,12 @@ for i in range(acccounts):
         .click()\
         .perform()
     print('Entering game...')
-    sleep(20)
+    sleep(30)  # 增加等待时间，等待游戏加载完成
     print('Login success')
 
     # 6. 领取月卡 - 月卡弹窗会在登录后自动显示在中间，直接点击即可
     print('Attempting to claim monthly card...')
-    sleep(3)  # 等待月卡弹窗出现
+    sleep(5)  # 等待月卡弹窗出现
     
     # 第一次点击 - 打开月卡弹窗或点击领取
     ActionChains(driver)\
