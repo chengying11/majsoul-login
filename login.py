@@ -37,11 +37,6 @@ for i in range(acccounts):
         driver.quit()
         raise
 
-    canvas_width = screen.size['width']
-    canvas_height = screen.size['height']
-    print(f'Canvas center: ({canvas_width/2}, {canvas_height/2})')
-    print(f'Safe offset range: x: 0-{canvas_width}, y: 0-{canvas_height}')
-
     print('Waiting for game to fully load...')
     sleep(60)
     print('Game load wait completed')
@@ -49,137 +44,74 @@ for i in range(acccounts):
     driver.save_screenshot(f"login_screen_{i+1}.png")
     print('Login screen captured')
 
-    print('=== Debug: Trying different click methods ===')
-    
-    print('\n--- Method 1: ActionChains with move_to_element (center) ---')
-    try:
-        actions = ActionChains(driver)
-        actions.move_to_element(screen)
-        actions.click()
-        actions.perform()
-        print('Success: Clicked canvas center')
-    except Exception as e:
-        print(f'Failed: {e}')
-
-    sleep(1)
-    
-    print('\n--- Method 2: Direct click on canvas element ---')
-    try:
-        screen.click()
-        print('Success: Direct click on canvas')
-    except Exception as e:
-        print(f'Failed: {e}')
-
-    sleep(1)
-    
-    print('\n--- Method 3: JavaScript click at center ---')
-    try:
-        driver.execute_script("""
-            var canvas = document.querySelector('canvas');
-            if (canvas) {
-                canvas.click();
-            }
-        """)
-        print('Success: JS click on canvas')
-    except Exception as e:
-        print(f'Failed: {e}')
-
-    sleep(1)
-    
-    print('\n--- Attempting email input ---')
-    email_x = int(canvas_width * 0.7)
-    email_y = int(canvas_height * 0.4)
-    print(f'Target email position: ({email_x}, {email_y})')
+    print('=== Finding HTML input elements ===')
     
     try:
-        driver.execute_script(f"""
-            var canvas = document.querySelector('canvas');
-            if (canvas) {{
-                var rect = canvas.getBoundingClientRect();
-                console.log('Canvas rect:', rect);
-                var x = rect.left + {email_x};
-                var y = rect.top + {email_y};
-                console.log('Click position:', x, y);
-                var event = new MouseEvent('click', {{
-                    clientX: x,
-                    clientY: y,
-                    bubbles: true
-                }});
-                canvas.dispatchEvent(event);
-            }}
-        """)
-        print('Success: Clicked email field position')
-        sleep(2)
+        email_input = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "input[placeholder*='電郵'], input[placeholder*='email'], input[placeholder*='账号'], input[type='text']"))
+        )
+        print('Found email input element')
         
-        actions = ActionChains(driver)
-        actions.send_keys(email)
-        actions.perform()
-        print(f'Success: Sent email: {email[:5]}***')
-    except Exception as e:
-        print(f'Failed: {e}')
-
-    driver.save_screenshot(f"after_email_{i+1}.png")
-    print('After email screenshot saved')
-
-    sleep(3)
-    
-    print('\n--- Attempting password input ---')
-    pass_x = int(canvas_width * 0.7)
-    pass_y = int(canvas_height * 0.52)
-    print(f'Target password position: ({pass_x}, {pass_y})')
-    
-    try:
-        driver.execute_script(f"""
-            var canvas = document.querySelector('canvas');
-            if (canvas) {{
-                var rect = canvas.getBoundingClientRect();
-                var event = new MouseEvent('click', {{
-                    clientX: rect.left + {pass_x},
-                    clientY: rect.top + {pass_y},
-                    bubbles: true
-                }});
-                canvas.dispatchEvent(event);
-            }}
-        """)
-        print('Success: Clicked password field position')
-        sleep(2)
+        email_input.click()
+        sleep(1)
+        email_input.clear()
+        email_input.send_keys(email)
+        print(f'Entered email: {email[:5]}***')
         
-        actions = ActionChains(driver)
-        actions.send_keys(passwd)
-        actions.perform()
-        print(f'Success: Sent password: {"*" * len(passwd)}')
+        sleep(2)
+        driver.save_screenshot(f"after_email_{i+1}.png")
+        print('After email screenshot saved')
+        
     except Exception as e:
-        print(f'Failed: {e}')
+        print(f'Failed to find email input: {e}')
+        driver.save_screenshot(f"email_error_{i+1}.png")
+        driver.quit()
+        raise
 
-    driver.save_screenshot(f"after_password_{i+1}.png")
-    print('After password screenshot saved')
-
-    sleep(3)
-    
-    print('\n--- Attempting login ---')
-    login_x = int(canvas_width * 0.7)
-    login_y = int(canvas_height * 0.68)
-    print(f'Target login button position: ({login_x}, {login_y})')
-    
     try:
-        driver.execute_script(f"""
-            var canvas = document.querySelector('canvas');
-            if (canvas) {{
-                var rect = canvas.getBoundingClientRect();
-                var event = new MouseEvent('click', {{
-                    clientX: rect.left + {login_x},
-                    clientY: rect.top + {login_y},
-                    bubbles: true
-                }});
-                canvas.dispatchEvent(event);
-            }}
-        """)
-        print('Success: Clicked login button')
+        password_input = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "input[placeholder*='密碼'], input[placeholder*='password'], input[type='password']"))
+        )
+        print('Found password input element')
+        
+        password_input.click()
+        sleep(1)
+        password_input.clear()
+        password_input.send_keys(passwd)
+        print(f'Entered password: {"*" * len(passwd)}')
+        
+        sleep(2)
+        driver.save_screenshot(f"after_password_{i+1}.png")
+        print('After password screenshot saved')
+        
     except Exception as e:
-        print(f'Failed: {e}')
+        print(f'Failed to find password input: {e}')
+        driver.save_screenshot(f"password_error_{i+1}.png")
+        driver.quit()
+        raise
 
-    sleep(10)
-    driver.save_screenshot(f"after_login_{i+1}.png")
-    print('After login screenshot saved')
+    try:
+        login_button = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'進入') or contains(text(),'登录') or contains(text(),'Login')]"))
+        )
+        print('Found login button')
+        
+        login_button.click()
+        print('Clicked login button')
+        
+        sleep(15)
+        driver.save_screenshot(f"after_login_{i+1}.png")
+        print('After login screenshot saved')
+        
+    except Exception as e:
+        print(f'Failed to find login button: {e}')
+        driver.save_screenshot(f"login_button_error_{i+1}.png")
+        driver.quit()
+        raise
+
+    print('Waiting for login process...')
+    sleep(45)
+    driver.save_screenshot(f"after_login_wait_{i+1}.png")
+    print('After login wait screenshot saved')
 
     driver.quit()
