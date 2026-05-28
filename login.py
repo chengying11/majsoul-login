@@ -4,7 +4,6 @@ from time import sleep
 from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -40,22 +39,10 @@ for i in range(acccounts):
         driver.quit()
         raise
     
-    # 3. 等待游戏资源加载完成（出现登录界面）
-    max_wait = 90
-    wait_interval = 10
-    waited = 0
-    
+    # 3. 等待游戏资源加载完成
     print('Waiting for game to fully load...')
-    while waited < max_wait:
-        sleep(wait_interval)
-        waited += wait_interval
-        driver.save_screenshot(f"loading_check_{i+1}_{waited}.png")
-        print(f'  Checked at {waited}s')
-        
-        if waited >= 60:
-            break
-    
-    print(f'Waited {waited}s for game load')
+    sleep(60)
+    print('Game load wait completed')
     
     driver.save_screenshot(f"login_screen_{i+1}.png")
     print('Login screen captured')
@@ -63,18 +50,8 @@ for i in range(acccounts):
     # 4. 输入账号
     print('Trying to input email...')
     ActionChains(driver)\
-        .move_to_element_with_offset(screen, 280, -80)\
+        .move_to_element_with_offset(screen, 280, -100)\
         .click()\
-        .perform()
-    sleep(1)
-    # 使用 Keys 来全选
-    ActionChains(driver)\
-        .key_down(Keys.CONTROL)\
-        .send_keys('a')\
-        .key_up(Keys.CONTROL)\
-        .perform()
-    sleep(0.5)
-    ActionChains(driver)\
         .send_keys(email)\
         .perform()
     sleep(2)
@@ -85,15 +62,6 @@ for i in range(acccounts):
     ActionChains(driver)\
         .move_to_element_with_offset(screen, 280, -20)\
         .click()\
-        .perform()
-    sleep(1)
-    ActionChains(driver)\
-        .key_down(Keys.CONTROL)\
-        .send_keys('a')\
-        .key_up(Keys.CONTROL)\
-        .perform()
-    sleep(0.5)
-    ActionChains(driver)\
         .send_keys(passwd)\
         .perform()
     sleep(2)
