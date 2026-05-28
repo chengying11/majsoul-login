@@ -49,11 +49,11 @@ for i in range(acccounts):
         .move_to_element_with_offset(screen, 350, -100)\
         .click()\
         .perform()
-    sleep(1)
+    sleep(2)
     ActionChains(driver)\
         .send_keys(email)\
         .perform()
-    sleep(2)
+    sleep(3)
     print('Email input attempted')
     driver.save_screenshot(f"after_email_{i+1}.png")
     print('After email input captured')
@@ -63,11 +63,11 @@ for i in range(acccounts):
         .move_to_element_with_offset(screen, 350, -50)\
         .click()\
         .perform()
-    sleep(1)
+    sleep(3)
     ActionChains(driver)\
         .send_keys(passwd)\
         .perform()
-    sleep(2)
+    sleep(3)
     print('Password input attempted')
     driver.save_screenshot(f"after_password_{i+1}.png")
     print('After password input captured')
