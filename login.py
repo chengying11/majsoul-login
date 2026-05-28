@@ -46,7 +46,7 @@ for i in range(acccounts):
 
     print('Trying to input email...')
     ActionChains(driver)\
-        .move_to_element_with_offset(screen, 350, -115)\
+        .move_to_element_with_offset(screen, 350, -130)\
         .click()\
         .perform()
     sleep(2)
