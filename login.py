@@ -44,21 +44,17 @@ for i in range(acccounts):
     driver.save_screenshot(f"login_screen_{i+1}.png")
     print('Login screen captured')
 
-    def click_at(x, y):
-        driver.execute_script(f"""
-            var event = new MouseEvent('click', {{
-                clientX: {x},
-                clientY: {y},
-                bubbles: true,
-                cancelable: true
-            }});
-            document.elementFromPoint({x}, {y})?.dispatchEvent(event);
-        """)
-
     print('Trying to input email...')
-    click_at(1000, 300)
+    actions = ActionChains(driver)
+    actions.move_to_element(screen)
+    actions.move_by_offset(900, 280)
+    actions.click()
+    actions.perform()
     sleep(1)
-    ActionChains(driver).send_keys(email).perform()
+    
+    actions = ActionChains(driver)
+    actions.send_keys(email)
+    actions.perform()
     sleep(2)
     print('Email input attempted')
 
@@ -66,9 +62,16 @@ for i in range(acccounts):
     print('After email input captured')
 
     print('Trying to input password...')
-    click_at(1000, 380)
+    actions = ActionChains(driver)
+    actions.move_to_element(screen)
+    actions.move_by_offset(900, 360)
+    actions.click()
+    actions.perform()
     sleep(1)
-    ActionChains(driver).send_keys(passwd).perform()
+    
+    actions = ActionChains(driver)
+    actions.send_keys(passwd)
+    actions.perform()
     sleep(2)
     print('Password input attempted')
 
@@ -76,7 +79,11 @@ for i in range(acccounts):
     print('After password input captured')
 
     print('Clicking login button...')
-    click_at(1000, 500)
+    actions = ActionChains(driver)
+    actions.move_to_element(screen)
+    actions.move_by_offset(900, 480)
+    actions.click()
+    actions.perform()
     print('Login button clicked')
     sleep(15)
 
@@ -92,7 +99,11 @@ for i in range(acccounts):
     print('Checking for server selection...')
     sleep(5)
 
-    click_at(1000, 220)
+    actions = ActionChains(driver)
+    actions.move_to_element(screen)
+    actions.move_by_offset(900, 200)
+    actions.click()
+    actions.perform()
     sleep(5)
 
     driver.save_screenshot(f"after_server_select_{i+1}.png")
@@ -102,9 +113,18 @@ for i in range(acccounts):
     sleep(30)
 
     print('Attempting to claim monthly card...')
-    click_at(640, 560)
+    actions = ActionChains(driver)
+    actions.move_to_element(screen)
+    actions.move_by_offset(640, 560)
+    actions.click()
+    actions.perform()
     sleep(3)
-    click_at(640, 560)
+    
+    actions = ActionChains(driver)
+    actions.move_to_element(screen)
+    actions.move_by_offset(640, 560)
+    actions.click()
+    actions.perform()
     sleep(3)
     print('Monthly card claim attempt completed')
 
