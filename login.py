@@ -24,28 +24,46 @@ for i in range(acccounts):
     options.add_experimental_option('useAutomationExtension', False)
     
     driver = webdriver.Chrome(options=options)
-    driver.set_window_size(1280, 800)  # 增大窗口尺寸
+    driver.set_window_size(1280, 800)
     driver.get("https://game.maj-soul.net/1/")
     print(f'Account {i+1} loading game...')
-    sleep(15)  # 增加初始加载等待时间
-
+    
     # 2. 等待游戏画布加载
     try:
-        screen = WebDriverWait(driver, 20).until(
+        screen = WebDriverWait(driver, 60).until(
             EC.presence_of_element_located((By.TAG_NAME, "canvas"))
         )
         print(f'Canvas found, size: {screen.size}')
     except:
-        driver.save_screenshot(f"error_{i+1}.png")
+        driver.save_screenshot(f"error_canvas_{i+1}.png")
         driver.quit()
         raise
-
+    
+    # 3. 等待游戏资源加载完成（出现登录界面）
+    # 通过多次截图检查来判断是否加载完成
+    max_wait = 60  # 最多等待60秒
+    wait_interval = 5  # 每5秒检查一次
+    waited = 0
+    
+    print('Waiting for game to fully load...')
+    while waited < max_wait:
+        sleep(wait_interval)
+        waited += wait_interval
+        driver.save_screenshot(f"loading_check_{i+1}_{waited}.png")
+        print(f'  Checked at {waited}s')
+        
+        # 检查是否已经出现登录输入框（通过像素判断）
+        # 这里简化处理：等待足够长时间
+        if waited >= 30:  # 至少等待30秒
+            break
+    
+    print(f'Waited {waited}s for game load')
+    
     # 保存登录界面截图
     driver.save_screenshot(f"login_screen_{i+1}.png")
     print('Login screen captured')
 
-    # 3. 输入账号
-    # 尝试不同的坐标位置来定位输入框
+    # 4. 输入账号
     print('Trying to input email...')
     ActionChains(driver)\
         .move_to_element_with_offset(screen, 280, -80)\
@@ -55,7 +73,7 @@ for i in range(acccounts):
     sleep(2)
     print('Email input attempted')
 
-    # 4. 输入密码
+    # 5. 输入密码
     print('Trying to input password...')
     ActionChains(driver)\
         .move_to_element_with_offset(screen, 280, -20)\
@@ -69,17 +87,17 @@ for i in range(acccounts):
     driver.save_screenshot(f"after_input_{i+1}.png")
     print('Input screen captured')
 
-    # 5. 点击登录
+    # 6. 点击登录
     print('Clicking login button...')
     ActionChains(driver)\
         .move_to_element_with_offset(screen, 280, 60)\
         .click()\
         .perform()
     print('Login button clicked')
-    sleep(30)  # 等待游戏加载完成
+    sleep(35)  # 等待游戏加载完成
     print('Login success')
 
-    # 6. 领取月卡
+    # 7. 领取月卡
     print('Attempting to claim monthly card...')
     sleep(5)
     
