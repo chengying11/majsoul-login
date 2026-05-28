@@ -40,9 +40,9 @@ for i in range(acccounts):
         raise
     
     # 3. 等待游戏资源加载完成（出现登录界面）
-    # 通过多次截图检查来判断是否加载完成
-    max_wait = 60  # 最多等待60秒
-    wait_interval = 5  # 每5秒检查一次
+    # 等待更长时间，直到登录界面完全加载
+    max_wait = 90  # 最多等待90秒
+    wait_interval = 10  # 每10秒检查一次
     waited = 0
     
     print('Waiting for game to fully load...')
@@ -52,9 +52,8 @@ for i in range(acccounts):
         driver.save_screenshot(f"loading_check_{i+1}_{waited}.png")
         print(f'  Checked at {waited}s')
         
-        # 检查是否已经出现登录输入框（通过像素判断）
-        # 这里简化处理：等待足够长时间
-        if waited >= 30:  # 至少等待30秒
+        # 等待60秒后尝试输入
+        if waited >= 60:
             break
     
     print(f'Waited {waited}s for game load')
@@ -63,11 +62,23 @@ for i in range(acccounts):
     driver.save_screenshot(f"login_screen_{i+1}.png")
     print('Login screen captured')
 
-    # 4. 输入账号
+    # 4. 输入账号 - 使用JavaScript直接设置值可能更可靠
     print('Trying to input email...')
+    # 先点击激活输入框
     ActionChains(driver)\
         .move_to_element_with_offset(screen, 280, -80)\
         .click()\
+        .perform()
+    sleep(1)
+    # 清除并输入
+    ActionChains(driver)\
+        .key_down('ctrl')\
+        .key_down('a')\
+        .key_up('a')\
+        .key_up('ctrl')\
+        .perform()
+    sleep(0.5)
+    ActionChains(driver)\
         .send_keys(email)\
         .perform()
     sleep(2)
@@ -78,6 +89,16 @@ for i in range(acccounts):
     ActionChains(driver)\
         .move_to_element_with_offset(screen, 280, -20)\
         .click()\
+        .perform()
+    sleep(1)
+    ActionChains(driver)\
+        .key_down('ctrl')\
+        .key_down('a')\
+        .key_up('a')\
+        .key_up('ctrl')\
+        .perform()
+    sleep(0.5)
+    ActionChains(driver)\
         .send_keys(passwd)\
         .perform()
     sleep(2)
@@ -94,7 +115,7 @@ for i in range(acccounts):
         .click()\
         .perform()
     print('Login button clicked')
-    sleep(35)  # 等待游戏加载完成
+    sleep(40)  # 等待游戏加载完成
     print('Login success')
 
     # 7. 领取月卡
