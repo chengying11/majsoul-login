@@ -2,6 +2,7 @@ import sys
 from time import sleep
 
 from selenium import webdriver
+from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -36,6 +37,11 @@ for i in range(acccounts):
         driver.quit()
         raise
 
+    canvas_width = screen.size['width']
+    canvas_height = screen.size['height']
+    print(f'Canvas center: ({canvas_width/2}, {canvas_height/2})')
+    print(f'Safe offset range: x: 0-{canvas_width}, y: 0-{canvas_height}')
+
     print('Waiting for game to fully load...')
     sleep(60)
     print('Game load wait completed')
@@ -43,102 +49,137 @@ for i in range(acccounts):
     driver.save_screenshot(f"login_screen_{i+1}.png")
     print('Login screen captured')
 
-    def simulate_click(x, y):
-        driver.execute_script(f'''
+    print('=== Debug: Trying different click methods ===')
+    
+    print('\n--- Method 1: ActionChains with move_to_element (center) ---')
+    try:
+        actions = ActionChains(driver)
+        actions.move_to_element(screen)
+        actions.click()
+        actions.perform()
+        print('Success: Clicked canvas center')
+    except Exception as e:
+        print(f'Failed: {e}')
+
+    sleep(1)
+    
+    print('\n--- Method 2: Direct click on canvas element ---')
+    try:
+        screen.click()
+        print('Success: Direct click on canvas')
+    except Exception as e:
+        print(f'Failed: {e}')
+
+    sleep(1)
+    
+    print('\n--- Method 3: JavaScript click at center ---')
+    try:
+        driver.execute_script("""
+            var canvas = document.querySelector('canvas');
+            if (canvas) {
+                canvas.click();
+            }
+        """)
+        print('Success: JS click on canvas')
+    except Exception as e:
+        print(f'Failed: {e}')
+
+    sleep(1)
+    
+    print('\n--- Attempting email input ---')
+    email_x = int(canvas_width * 0.7)
+    email_y = int(canvas_height * 0.4)
+    print(f'Target email position: ({email_x}, {email_y})')
+    
+    try:
+        driver.execute_script(f"""
             var canvas = document.querySelector('canvas');
             if (canvas) {{
                 var rect = canvas.getBoundingClientRect();
-                var clickEvent = new MouseEvent('click', {{
-                    clientX: rect.left + {x},
-                    clientY: rect.top + {y},
-                    bubbles: true,
-                    cancelable: true
+                console.log('Canvas rect:', rect);
+                var x = rect.left + {email_x};
+                var y = rect.top + {email_y};
+                console.log('Click position:', x, y);
+                var event = new MouseEvent('click', {{
+                    clientX: x,
+                    clientY: y,
+                    bubbles: true
                 }});
-                canvas.dispatchEvent(clickEvent);
+                canvas.dispatchEvent(event);
             }}
-        ''')
-
-    def simulate_keyboard(text):
-        driver.execute_script(f'''
-            var canvas = document.querySelector('canvas');
-            if (canvas) {{
-                text.split('').forEach(function(char) {{
-                    var keyEvent = new KeyboardEvent('keydown', {{
-                        key: char,
-                        bubbles: true,
-                        cancelable: true
-                    }});
-                    canvas.dispatchEvent(keyEvent);
-                    keyEvent = new KeyboardEvent('keypress', {{
-                        key: char,
-                        bubbles: true,
-                        cancelable: true
-                    }});
-                    canvas.dispatchEvent(keyEvent);
-                    keyEvent = new KeyboardEvent('keyup', {{
-                        key: char,
-                        bubbles: true,
-                        cancelable: true
-                    }});
-                    canvas.dispatchEvent(keyEvent);
-                }});
-            }}
-        ''', text)
-
-    print('Trying to input email...')
-    simulate_click(900, 280)
-    sleep(1)
-    simulate_keyboard(email)
-    sleep(2)
-    print('Email input attempted')
+        """)
+        print('Success: Clicked email field position')
+        sleep(2)
+        
+        actions = ActionChains(driver)
+        actions.send_keys(email)
+        actions.perform()
+        print(f'Success: Sent email: {email[:5]}***')
+    except Exception as e:
+        print(f'Failed: {e}')
 
     driver.save_screenshot(f"after_email_{i+1}.png")
-    print('After email input captured')
+    print('After email screenshot saved')
 
-    print('Trying to input password...')
-    simulate_click(900, 360)
-    sleep(1)
-    simulate_keyboard(passwd)
-    sleep(2)
-    print('Password input attempted')
+    sleep(3)
+    
+    print('\n--- Attempting password input ---')
+    pass_x = int(canvas_width * 0.7)
+    pass_y = int(canvas_height * 0.52)
+    print(f'Target password position: ({pass_x}, {pass_y})')
+    
+    try:
+        driver.execute_script(f"""
+            var canvas = document.querySelector('canvas');
+            if (canvas) {{
+                var rect = canvas.getBoundingClientRect();
+                var event = new MouseEvent('click', {{
+                    clientX: rect.left + {pass_x},
+                    clientY: rect.top + {pass_y},
+                    bubbles: true
+                }});
+                canvas.dispatchEvent(event);
+            }}
+        """)
+        print('Success: Clicked password field position')
+        sleep(2)
+        
+        actions = ActionChains(driver)
+        actions.send_keys(passwd)
+        actions.perform()
+        print(f'Success: Sent password: {"*" * len(passwd)}')
+    except Exception as e:
+        print(f'Failed: {e}')
 
     driver.save_screenshot(f"after_password_{i+1}.png")
-    print('After password input captured')
+    print('After password screenshot saved')
 
-    print('Clicking login button...')
-    simulate_click(900, 480)
-    print('Login button clicked')
-    sleep(15)
-
-    driver.save_screenshot(f"after_login_click_{i+1}.png")
-    print('After login click captured')
-
-    print('Waiting for login process...')
-    sleep(45)
-
-    driver.save_screenshot(f"after_login_wait_{i+1}.png")
-    print('After login wait captured')
-
-    print('Checking for server selection...')
-    sleep(5)
-
-    simulate_click(900, 200)
-    sleep(5)
-
-    driver.save_screenshot(f"after_server_select_{i+1}.png")
-    print('After server select captured')
-
-    print('Waiting for game entry...')
-    sleep(30)
-
-    print('Attempting to claim monthly card...')
-    simulate_click(640, 560)
     sleep(3)
-    simulate_click(640, 560)
-    sleep(3)
-    print('Monthly card claim attempt completed')
+    
+    print('\n--- Attempting login ---')
+    login_x = int(canvas_width * 0.7)
+    login_y = int(canvas_height * 0.68)
+    print(f'Target login button position: ({login_x}, {login_y})')
+    
+    try:
+        driver.execute_script(f"""
+            var canvas = document.querySelector('canvas');
+            if (canvas) {{
+                var rect = canvas.getBoundingClientRect();
+                var event = new MouseEvent('click', {{
+                    clientX: rect.left + {login_x},
+                    clientY: rect.top + {login_y},
+                    bubbles: true
+                }});
+                canvas.dispatchEvent(event);
+            }}
+        """)
+        print('Success: Clicked login button')
+    except Exception as e:
+        print(f'Failed: {e}')
 
-    driver.save_screenshot(f"result_{i+1}.png")
-    print(f'Screenshot saved as result_{i+1}.png')
+    sleep(10)
+    driver.save_screenshot(f"after_login_{i+1}.png")
+    print('After login screenshot saved')
 
     driver.quit()
