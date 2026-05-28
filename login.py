@@ -14,7 +14,7 @@ for i in range(acccounts):
     passwd = sys.argv[1+i+acccounts]
     print('----------------------------')
 
-    # 1. 浏览器配置（反风控）
+    # 1. 浏览器配置（反风控，GitHub必备）
     options = webdriver.ChromeOptions()
     options.add_argument("--headless=new")
     options.add_argument("--disable-blink-features=AutomationControlled")
@@ -24,60 +24,73 @@ for i in range(acccounts):
     options.add_experimental_option('useAutomationExtension', False)
     
     driver = webdriver.Chrome(options=options)
-    driver.set_window_size(1000, 720)
+    driver.set_window_size(1280, 800)  # 增大窗口尺寸
     driver.get("https://game.maj-soul.net/1/")
     print(f'Account {i+1} loading game...')
-    sleep(10)
+    sleep(15)  # 增加初始加载等待时间
 
     # 2. 等待游戏画布加载
     try:
         screen = WebDriverWait(driver, 20).until(
             EC.presence_of_element_located((By.TAG_NAME, "canvas"))
         )
+        print(f'Canvas found, size: {screen.size}')
     except:
         driver.save_screenshot(f"error_{i+1}.png")
         driver.quit()
         raise
 
-    # 3. 输入账号（修复：正确的Canvas输入方式）
+    # 保存登录界面截图
+    driver.save_screenshot(f"login_screen_{i+1}.png")
+    print('Login screen captured')
+
+    # 3. 输入账号
+    # 尝试不同的坐标位置来定位输入框
+    print('Trying to input email...')
     ActionChains(driver)\
-        .move_to_element_with_offset(screen, 250, -100)\
+        .move_to_element_with_offset(screen, 280, -80)\
         .click()\
         .send_keys(email)\
         .perform()
-    sleep(1)
-    print('Input email successfully')
+    sleep(2)
+    print('Email input attempted')
 
-    # 4. 输入密码（修复：正确的Canvas输入方式）
+    # 4. 输入密码
+    print('Trying to input password...')
     ActionChains(driver)\
-        .move_to_element_with_offset(screen, 250, -50)\
+        .move_to_element_with_offset(screen, 280, -20)\
         .click()\
         .send_keys(passwd)\
         .perform()
-    sleep(1)
-    print('Input password successfully')
+    sleep(2)
+    print('Password input attempted')
+
+    # 保存输入后截图
+    driver.save_screenshot(f"after_input_{i+1}.png")
+    print('Input screen captured')
 
     # 5. 点击登录
+    print('Clicking login button...')
     ActionChains(driver)\
-        .move_to_element_with_offset(screen, 250, 50)\
+        .move_to_element_with_offset(screen, 280, 60)\
         .click()\
         .perform()
-    print('Entering game...')
-    sleep(30)  # 增加等待时间，等待游戏加载完成
+    print('Login button clicked')
+    sleep(30)  # 等待游戏加载完成
     print('Login success')
 
-    # 6. 领取月卡 - 月卡弹窗会在登录后自动显示在中间，直接点击即可
+    # 6. 领取月卡
     print('Attempting to claim monthly card...')
-    sleep(5)  # 等待月卡弹窗出现
+    sleep(5)
     
-    # 第一次点击 - 打开月卡弹窗或点击领取
+    # 第一次点击
     ActionChains(driver)\
         .move_to_element_with_offset(screen, 0, 50)\
         .click()\
         .perform()
     sleep(2)
     
-    # 第二次点击 - 确认领取或关闭弹窗
+    # 第二次点击
     ActionChains(driver)\
         .move_to_element_with_offset(screen, 0, 50)\
         .click()\
@@ -86,7 +99,7 @@ for i in range(acccounts):
     
     print('Monthly card claim attempt completed')
     
-    # 保存截图以便调试
+    # 保存结果截图
     driver.save_screenshot(f"result_{i+1}.png")
     print(f'Screenshot saved as result_{i+1}.png')
     
