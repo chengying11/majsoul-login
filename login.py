@@ -2,6 +2,7 @@ import sys
 from time import sleep
 
 from selenium import webdriver
+from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -36,10 +37,6 @@ for i in range(acccounts):
         driver.quit()
         raise
 
-    canvas_width = screen.size['width']
-    canvas_height = screen.size['height']
-    print(f'Canvas dimensions: {canvas_width}x{canvas_height}')
-
     print('Waiting for game to fully load...')
     sleep(60)
     print('Game load wait completed')
@@ -47,70 +44,49 @@ for i in range(acccounts):
     driver.save_screenshot(f"login_screen_{i+1}.png")
     print('Login screen captured')
 
-    def click_at(x, y):
-        driver.execute_script(f"""
-            var canvas = document.querySelector('canvas');
-            if (canvas) {{
-                var rect = canvas.getBoundingClientRect();
-                var evt = new MouseEvent('mousedown', {{clientX: rect.left + {x}, clientY: rect.top + {y}, bubbles: true}});
-                canvas.dispatchEvent(evt);
-                evt = new MouseEvent('mouseup', {{clientX: rect.left + {x}, clientY: rect.top + {y}, bubbles: true}});
-                canvas.dispatchEvent(evt);
-                evt = new MouseEvent('click', {{clientX: rect.left + {x}, clientY: rect.top + {y}, bubbles: true}});
-                canvas.dispatchEvent(evt);
-            }}
-        """)
-
-    def type_text(text):
-        driver.execute_script("""
-            var canvas = document.querySelector('canvas');
-            if (canvas) {
-                var text = arguments[0];
-                for (var i = 0; i < text.length; i++) {
-                    var char = text[i];
-                    var keydown = new KeyboardEvent('keydown', {key: char, bubbles: true});
-                    var keypress = new KeyboardEvent('keypress', {key: char, bubbles: true});
-                    var keyup = new KeyboardEvent('keyup', {key: char, bubbles: true});
-                    canvas.dispatchEvent(keydown);
-                    canvas.dispatchEvent(keypress);
-                    canvas.dispatchEvent(keyup);
-                }
-            }
-        """, text)
-
-    email_x = int(canvas_width * 0.78)
-    email_y = int(canvas_height * 0.42)
-    print(f'\nClicking email field at ({email_x}, {email_y})...')
-    click_at(email_x, email_y)
+    print('Trying to input email...')
+    ActionChains(driver)\
+        .move_to_element_with_offset(screen, 350, 0)\
+        .click()\
+        .perform()
+    sleep(1)
+    ActionChains(driver)\
+        .send_keys(email)\
+        .perform()
     sleep(2)
-    print(f'Typing email: {email[:5]}***')
-    type_text(email)
-    sleep(2)
+    print('Email input attempted')
     driver.save_screenshot(f"after_email_{i+1}.png")
-    print('After email screenshot saved')
+    print('After email input captured')
 
-    pass_x = int(canvas_width * 0.78)
-    pass_y = int(canvas_height * 0.53)
-    print(f'\nClicking password field at ({pass_x}, {pass_y})...')
-    click_at(pass_x, pass_y)
+    print('Trying to input password...')
+    ActionChains(driver)\
+        .move_to_element_with_offset(screen, 350, 70)\
+        .click()\
+        .perform()
+    sleep(1)
+    ActionChains(driver)\
+        .send_keys(passwd)\
+        .perform()
     sleep(2)
-    print(f'Typing password: {"*" * len(passwd)}')
-    type_text(passwd)
-    sleep(2)
+    print('Password input attempted')
     driver.save_screenshot(f"after_password_{i+1}.png")
-    print('After password screenshot saved')
+    print('After password input captured')
 
-    login_x = int(canvas_width * 0.78)
-    login_y = int(canvas_height * 0.68)
-    print(f'\nClicking login button at ({login_x}, {login_y})...')
-    click_at(login_x, login_y)
+    print('Clicking login button...')
+    ActionChains(driver)\
+        .move_to_element_with_offset(screen, 350, 170)\
+        .click()\
+        .perform()
+    print('Login button clicked')
     sleep(15)
-    driver.save_screenshot(f"after_login_{i+1}.png")
-    print('After login screenshot saved')
+    
+    driver.save_screenshot(f"after_login_click_{i+1}.png")
+    print('After login click captured')
 
-    print('\nWaiting for login process...')
+    print('Waiting for login process...')
     sleep(45)
+    
     driver.save_screenshot(f"after_login_wait_{i+1}.png")
-    print('After login wait screenshot saved')
+    print('After login wait captured')
 
     driver.quit()
