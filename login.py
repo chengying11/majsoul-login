@@ -31,22 +31,15 @@ for i in range(acccounts):
         screen = WebDriverWait(driver, 60).until(
             EC.presence_of_element_located((By.TAG_NAME, "canvas"))
         )
-        print(f'Canvas found, size: {screen.size}')
     except:
         driver.save_screenshot(f"error_canvas_{i+1}.png")
         driver.quit()
         raise
 
-    print('Waiting for game to fully load...')
     sleep(60)
-    print('Game load wait completed')
 
-    driver.save_screenshot(f"login_screen_{i+1}.png")
-    print('Login screen captured')
-
-    print('Trying to input email...')
     ActionChains(driver)\
-        .move_to_element_with_offset(screen, 350, -130)\
+        .move_to_element_with_offset(screen, 350, -135)\
         .click()\
         .perform()
     sleep(2)
@@ -54,11 +47,7 @@ for i in range(acccounts):
         .send_keys(email)\
         .perform()
     sleep(3)
-    print('Email input attempted')
-    driver.save_screenshot(f"after_email_{i+1}.png")
-    print('After email input captured')
 
-    print('Trying to input password...')
     ActionChains(driver)\
         .move_to_element_with_offset(screen, 350, -50)\
         .click()\
@@ -68,25 +57,14 @@ for i in range(acccounts):
         .send_keys(passwd)\
         .perform()
     sleep(3)
-    print('Password input attempted')
-    driver.save_screenshot(f"after_password_{i+1}.png")
-    print('After password input captured')
 
-    print('Clicking login button...')
     ActionChains(driver)\
         .move_to_element_with_offset(screen, 350, 60)\
         .click()\
         .perform()
-    print('Login button clicked')
-    sleep(15)
-    
-    driver.save_screenshot(f"after_login_click_{i+1}.png")
-    print('After login click captured')
 
-    print('Waiting for login process...')
-    sleep(45)
-    
-    driver.save_screenshot(f"after_login_wait_{i+1}.png")
-    print('After login wait captured')
+    sleep(60)
+    driver.save_screenshot(f"login_success_{i+1}.png")
+    print(f'Account {i+1} login completed')
 
     driver.quit()
