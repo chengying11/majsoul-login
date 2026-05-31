@@ -14,7 +14,6 @@ for i in range(acccounts):
     passwd = sys.argv[1+i+acccounts]
     print('----------------------------')
 
-    #1.open browser
     options = webdriver.ChromeOptions()
     options.add_argument("--headless=new")
     options.add_argument("--disable-blink-features=AutomationControlled")
@@ -33,40 +32,39 @@ for i in range(acccounts):
             EC.presence_of_element_located((By.TAG_NAME, "canvas"))
         )
     except:
+        driver.save_screenshot(f"error_canvas_{i+1}.png")
         driver.quit()
         raise
 
     sleep(60)
 
-    #2.input email
     ActionChains(driver)\
         .move_to_element_with_offset(screen, 350, -135)\
         .click()\
         .perform()
-    sleep(1)
+    sleep(2)
     ActionChains(driver)\
         .send_keys(email)\
         .perform()
-    sleep(1)
+    sleep(3)
 
-    #3.input password
     ActionChains(driver)\
         .move_to_element_with_offset(screen, 350, -50)\
         .click()\
         .perform()
-    sleep(1)
+    sleep(3)
     ActionChains(driver)\
         .send_keys(passwd)\
         .perform()
-    sleep(1)
+    sleep(3)
 
-    #4.login
     ActionChains(driver)\
         .move_to_element_with_offset(screen, 350, 60)\
         .click()\
         .perform()
-    print(f'Account {i+1} entering game...')
-    sleep(20)  # loading...
+
+    sleep(60)
+    driver.save_screenshot(f"login_success_{i+1}.png")
     print(f'Account {i+1} login completed')
 
     driver.quit()
